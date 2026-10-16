@@ -10,7 +10,17 @@
     return { slide, step };
   }
 
-  if (typeof module !== "undefined") { module.exports = { parseHash }; return; }
+  // Keys belong to a focused link, button or field, not to the deck.
+  function isControlTarget(el) {
+    return !!(el && el.closest && el.closest("a, button, input, textarea, select"));
+  }
+
+  // Browsers do not synthesise a click after a pan, but a quick tap right after a swipe is noise.
+  function clickFollowsSwipe(now, lastSwipe) {
+    return lastSwipe > 0 && now - lastSwipe < 400;
+  }
+
+  if (typeof module !== "undefined") { module.exports = { parseHash, isControlTarget, clickFollowsSwipe }; return; }
 
   const deck = document.getElementById("deck");
   const slides = Array.from(deck.querySelectorAll(".slide"));
@@ -45,9 +55,10 @@
     grid.querySelectorAll("a").forEach((a, i) => a.classList.toggle("current", i + 1 === slide));
   }
 
-  // Headlines with fixed line breaks (and giant figures) shrink until they fit the stage width.
+  // Headlines shrink until they fit the stage width: fixed-break and nowrap ones as a whole,
+  // wrapping ones when a single word is wider than the column (scrollWidth still reports it).
   function fitHeadlines(el) {
-    el.querySelectorAll("h1.keep, h1.figure").forEach((h) => {
+    el.querySelectorAll("h1, blockquote").forEach((h) => {
       h.style.fontSize = "";
       const max = parseFloat(getComputedStyle(h).fontSize);
       let size = max;
@@ -81,6 +92,7 @@
   // Keyboard.
   document.addEventListener("keydown", (e) => {
     if (e.metaKey || e.ctrlKey || e.altKey) return;
+    if ((e.key === "Enter" || e.key === " ") && isControlTarget(e.target)) return; // activate the control instead
     switch (e.key) {
       case "ArrowRight": case "ArrowDown": case " ": case "PageDown": case "Enter": e.preventDefault(); if (grid.hidden) next(); break;
       case "ArrowLeft": case "ArrowUp": case "PageUp": case "Backspace": e.preventDefault(); if (grid.hidden) prev(); break;
@@ -92,23 +104,20 @@
   });
 
   // Click / tap: right half forward, left half back. Ignore the hud, notes, links.
+  let lastSwipe = 0;
   deck.addEventListener("click", (e) => {
-    if (e.target.closest("a, button, .notes")) return;
+    if (e.target.closest("a, button, .notes") || clickFollowsSwipe(Date.now(), lastSwipe)) return;
     if (e.clientX > window.innerWidth / 2) next(); else prev();
   });
 
   // Swipe.
   let touch = null;
-  deck.addEventListener("touchstart", (e) => { touch = { x: e.touches[0].clientX, y: e.touches[0].clientY, moved: false }; }, { passive: true });
-  deck.addEventListener("touchmove", () => { if (touch) touch.moved = true; }, { passive: true });
+  deck.addEventListener("touchstart", (e) => { touch = { x: e.touches[0].clientX, y: e.touches[0].clientY }; }, { passive: true });
   deck.addEventListener("touchend", (e) => {
     if (!touch) return;
     const dx = e.changedTouches[0].clientX - touch.x, dy = e.changedTouches[0].clientY - touch.y;
-    const swiped = Math.abs(dx) > 50 && Math.abs(dx) > Math.abs(dy) * 1.5;
-    if (swiped) { dx < 0 ? next() : prev(); }
-    // Stop the click the browser synthesises after a drag from also firing.
-    if (touch.moved) deck.addEventListener("click", (c) => c.stopImmediatePropagation(), { capture: true, once: true });
     touch = null;
+    if (Math.abs(dx) > 50 && Math.abs(dx) > Math.abs(dy) * 1.5) { lastSwipe = Date.now(); dx < 0 ? next() : prev(); }
   });
 
   // Wheel: one slide per gesture. Trackpads emit bursts; ignore events for 700ms after one fires.
