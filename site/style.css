@@ -31,6 +31,7 @@ h1 { font-weight: 700; line-height: .95; letter-spacing: -.01em; margin-top: cal
 h1.display { font-size: calc(132 * var(--u)); }
 .slide-chapter h1.display { font-size: calc(116 * var(--u)); }
 h1.figure { font-size: calc(200 * var(--u)); line-height: .9; }
+h1.figure, h1.keep { white-space: nowrap; }  /* app.js shrinks these to fit the stage width */
 .sub { font-weight: 300; color: var(--soft); line-height: 1.15; margin-top: calc(28 * var(--u)); font-size: calc(30 * var(--u)); max-width: 28em; }
 .slide-statement .sub { font-size: calc(36 * var(--u)); }
 .slide-title .sub, .slide-chapter .sub { font-size: calc(30 * var(--u)); }
@@ -62,7 +63,7 @@ cite { display: block; font-style: normal; font-weight: 300; color: var(--grey);
 
 /* refs */
 .slide-refs h1 { font-size: calc(64 * var(--u)); }
-table.refs { border-collapse: collapse; margin-top: calc(40 * var(--u)); font-size: calc(22 * var(--u)); line-height: 1.75; width: 100%; }
+table.refs { border-collapse: collapse; margin-top: calc(28 * var(--u)); font-size: calc(21 * var(--u)); line-height: 1.5; width: 100%; }
 table.refs td { padding: 0 calc(16 * var(--u)) 0 0; vertical-align: top; white-space: nowrap; }
 table.refs .n { color: var(--dim); }
 table.refs .who { font-weight: 500; }
@@ -148,7 +149,8 @@ body.show-notes .slide.current .notes { display: block; }
   h1.figure { font-size: calc(140 * var(--u)); }
   .slide-person h1 { font-size: calc(64 * var(--u)); }
   blockquote { font-size: calc(40 * var(--u)); }
-  .row { font-size: calc(24 * var(--u)); grid-template-columns: 2.6fr 2.2fr 3.6fr 1fr; }
+  .row { font-size: calc(19 * var(--u)); grid-template-columns: 2.6fr 2.2fr 3.6fr 1fr; white-space: nowrap; }
+  #hud { top: 10px; bottom: auto; }
   svg.network { height: calc(300 * var(--u)); }
   svg.network .hub { font-size: 60px; } svg.network .name { font-size: 40px; } svg.network .rel { font-size: 24px; }
   .gapbar { margin-top: calc(170 * var(--u)); }

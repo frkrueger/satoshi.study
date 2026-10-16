@@ -25,16 +25,39 @@
     slides.forEach((el, i) => {
       const on = i + 1 === slide;
       el.classList.toggle("current", on);
-      if (on) el.querySelectorAll("[data-step]").forEach((n) => n.classList.toggle("off", parseInt(n.dataset.step, 10) > step));
+      if (!on) return;
+      // Build steps accumulate; the timeline dot and the notes belong to exactly one step.
+      el.querySelectorAll("[data-step]").forEach((n) => {
+        const k = parseInt(n.dataset.step, 10);
+        const exact = n.closest(".timeline, .notes");
+        n.classList.toggle("off", exact ? k !== step : k > step);
+      });
     });
     const el = slides[slide - 1];
+    fitHeadlines(el);
     hud.chapter.textContent = el.dataset.chapter;
     hud.counter.textContent = slide + " / " + total;
-    document.title = (el.querySelector("h1, blockquote")?.textContent.replace(/\s+/g, " ").trim() || "Who Was Satoshi?") + " — Who Was Satoshi?";
+    const head = el.querySelector("h1, blockquote");
+    const headText = head ? Array.from(head.childNodes).map((n) => (n.nodeName === "BR" ? " " : n.textContent)).join("").replace(/\s+/g, " ").trim() : "";
+    document.title = (headText || "Who Was Satoshi?") + " — Who Was Satoshi?";
     // Warm the neighbours' images.
     [slide, slide + 1, slide + 2].forEach((n) => slides[n - 1]?.querySelectorAll("img[loading=lazy]").forEach((img) => (img.loading = "eager")));
     grid.querySelectorAll("a").forEach((a, i) => a.classList.toggle("current", i + 1 === slide));
   }
+
+  // Headlines with fixed line breaks (and giant figures) shrink until they fit the stage width.
+  function fitHeadlines(el) {
+    el.querySelectorAll("h1.keep, h1.figure").forEach((h) => {
+      h.style.fontSize = "";
+      const max = parseFloat(getComputedStyle(h).fontSize);
+      let size = max;
+      while (h.scrollWidth > h.clientWidth + 1 && size > max * 0.4) {
+        size -= max * 0.03;
+        h.style.fontSize = size + "px";
+      }
+    });
+  }
+  window.addEventListener("resize", () => fitHeadlines(slides[cur.slide - 1]));
 
   function go(slide, step = 1, replace = false) {
     const h = "#" + slide + (step > 1 ? "/" + step : "");

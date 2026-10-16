@@ -109,7 +109,12 @@ ${slides.map((s, i) => `<a href="#${i + 1}"><b>${i + 1}</b> <span class="k">${es
 
 // ---------------------------------------------------------------- slide types (Task 3)
 const kicker = (t) => (t ? `<p class="kicker">${inline(t)}</p>` : "");
-const h1 = (t, cls = "", style = "") => (t ? `<h1 class="${cls}"${style ? ` style="${style}"` : ""}>${inline(t)}</h1>` : "");
+// A headline written with explicit "\n" breaks keeps exactly those lines: it shrinks rather than re-wraps.
+const h1 = (t, cls = "", style = "") => {
+  if (!t) return "";
+  const classes = [cls, t.includes("\n") ? "keep" : ""].filter(Boolean).join(" ");
+  return `<h1 class="${classes}"${style ? ` style="${style}"` : ""}>${inline(t)}</h1>`;
+};
 const sub = (t, cls = "sub") => (t ? `<p class="${cls}">${inline(t)}</p>` : "");
 
 // Deck point sizes map to CSS via --u (1 deck pt). Custom sizes pass through as a style.

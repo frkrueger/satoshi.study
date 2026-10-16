@@ -77,3 +77,9 @@ test("person without a photo gets the dashed placeholder", () => {
   assert.match(html, /class="no-photo"/);
   assert.match(html, /No verified<br>public photograph/);
 });
+
+test("a headline with explicit line breaks is marked keep so it shrinks instead of re-wrapping", () => {
+  const html = render([{ type: "statement", kicker: "k", title: "Two names\nare *missing*." }, { type: "statement", kicker: "k", title: "One line" }]);
+  assert.match(html, /<h1 class="statement keep">Two names<br>are <em>missing<\/em>\.<\/h1>/);
+  assert.match(html, /<h1 class="statement">One line<\/h1>/);
+});
