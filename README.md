@@ -38,7 +38,7 @@ node site.js                  # writes ../site/index.html and copies ../site/img
 node --test 'test/*.test.js'  # generator tests
 ```
 
-`site/` is committed and served by GitHub Pages (branch `main`, folder `/site`).
+`site/` is committed and deployed to GitHub Pages by `.github/workflows/pages.yml` on every push to `main`.
 `site/style.css` and `site/app.js` are hand-written; only `index.html` and `img/`
 are generated. Arrow keys, space, click/tap, swipe or wheel advance; N toggles the
 narration; Esc shows every slide; the URL hash is the slide number.

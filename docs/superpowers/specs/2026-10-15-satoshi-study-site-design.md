@@ -67,7 +67,7 @@ the sequence, then leaves the slide. The timeline dot and `t` update per step.
 ## Deployment
 
 1. `git init`, commit whole project, create public repo `frkrueger/satoshi.study`, push `main`.
-2. Enable Pages: branch `main`, folder `/site`; custom domain satoshi.study; enforce HTTPS.
+2. Enable Pages with the Actions workflow `.github/workflows/pages.yml` (uploads `site/`); custom domain satoshi.study; enforce HTTPS.
 3. Namecheap DNS: A @ → 185.199.108.153, 185.199.109.153, 185.199.110.153,
    185.199.111.153; CNAME www → frkrueger.github.io.
 
