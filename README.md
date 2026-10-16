@@ -28,6 +28,21 @@ node build.js      # writes ../who-was-satoshi.pptx
 breaks itself, so Keynote never re-wraps a headline. In `content.js`, `*word*` is the
 orange highlight and `\n` is a line break the layout keeps.
 
+## Website
+
+The same `content.js` also builds the web slideshow at https://satoshi.study:
+
+```bash
+cd build
+node site.js                  # writes ../site/index.html and copies ../site/img/
+node --test 'test/*.test.js'  # generator tests
+```
+
+`site/` is committed and served by GitHub Pages (branch `main`, folder `/site`).
+`site/style.css` and `site/app.js` are hand-written; only `index.html` and `img/`
+are generated. Arrow keys, space, click/tap, swipe or wheel advance; N toggles the
+narration; Esc shows every slide; the URL hash is the slide number.
+
 ## Design
 
 Black, white Helvetica Neue (Bold / Light), one highlight colour — Bitcoin orange
