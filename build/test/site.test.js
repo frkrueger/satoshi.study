@@ -42,3 +42,38 @@ test("chapterOf strips the numeral", () => {
   assert.equal(chapterOf(slides, 2), "The Mathematician");
   assert.equal(chapterOf(slides, 4), "RPOW");
 });
+
+const { render } = require("../site.js");
+const content = require("../content.js");
+
+test("render covers every slide and every image", () => {
+  const html = render(content);
+  assert.equal((html.match(/<section class="slide /g) || []).length, 82);
+  for (const s of content) if (s.image) assert.ok(html.includes(`src="img/${s.image}"`), s.image);
+  assert.ok(!html.includes("undefined"), "no 'undefined' leaked into the page");
+  assert.ok(!html.includes("[object Object]"));
+});
+
+test("stepped slides expose each step", () => {
+  const html = render(content);
+  const nonce = html.match(/<section class="slide slide-nonce"[\s\S]*?<\/section>/)[0];
+  assert.match(nonce, /data-steps="3"/);
+  assert.match(nonce, /class="row" data-step="3"/);
+  assert.match(nonce, /0000ab72/);
+  const net = html.match(/<section class="slide slide-network"[\s\S]*?<\/section>/)[0];
+  assert.match(net, /data-steps="2"/);
+  assert.match(net, /Len Sassaman/);
+  const gap = html.match(/<section class="slide slide-gap"[\s\S]*?<\/section>/)[0];
+  assert.match(gap, /data-steps="3"/);
+  assert.match(gap, /Oct 31 · The whitepaper/);
+});
+
+test("render throws on an unknown type", () => {
+  assert.throws(() => render([{ type: "banana", kicker: "x" }]), /unknown slide type: banana/);
+});
+
+test("person without a photo gets the dashed placeholder", () => {
+  const html = render([{ type: "person", kicker: "k", title: "Wei Dai", sub: "s" }]);
+  assert.match(html, /class="no-photo"/);
+  assert.match(html, /No verified<br>public photograph/);
+});
