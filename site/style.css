@@ -126,6 +126,12 @@ svg.network .rel { fill: var(--grey); font-size: 18px; }
 #hud { position: fixed; right: 16px; bottom: 10px; display: flex; gap: 14px; align-items: center; font-size: 12px; color: var(--dim); z-index: 5; }
 #hud button { background: none; border: 1px solid var(--hair); color: var(--grey); font: inherit; padding: 3px 8px; border-radius: 4px; cursor: pointer; }
 #hud button:hover { color: var(--white); border-color: var(--grey); }
+#fullscreen-help { background: #111; color: var(--white); border: 1px solid var(--hair); border-radius: 8px; padding: 22px 26px; max-width: 360px; font-family: var(--sans); }
+#fullscreen-help::backdrop { background: rgba(0,0,0,.7); }
+#fullscreen-help h2 { font-size: 18px; margin: 0 0 10px; }
+#fullscreen-help p { font-size: 14px; line-height: 1.45; color: var(--soft); margin: 0 0 16px; }
+#fullscreen-help button { background: none; border: 1px solid var(--hair); color: var(--grey); font: inherit; font-size: 13px; padding: 5px 12px; border-radius: 4px; cursor: pointer; }
+#fullscreen-help button:hover { color: var(--white); border-color: var(--grey); }
 .notes { display: none; position: fixed; left: 0; right: 0; bottom: 0; max-height: 40dvh; overflow: auto; background: #111; color: var(--soft); border-top: 1px solid var(--hair); padding: 18px var(--mx) 44px; font-size: 16px; line-height: 1.45; z-index: 4; }
 .notes p + p { margin-top: .6em; }
 .notes .none { color: var(--dim); }

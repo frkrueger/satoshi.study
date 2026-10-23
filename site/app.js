@@ -91,7 +91,7 @@
 
   // Keyboard.
   document.addEventListener("keydown", (e) => {
-    if (e.metaKey || e.ctrlKey || e.altKey) return;
+    if (e.metaKey || e.ctrlKey || e.altKey || document.querySelector("dialog[open]")) return;
     if ((e.key === "Enter" || e.key === " ") && isControlTarget(e.target)) return; // activate the control instead
     switch (e.key) {
       case "ArrowRight": case "ArrowDown": case " ": case "PageDown": case "Enter": e.preventDefault(); if (grid.hidden) next(); break;
@@ -99,6 +99,7 @@
       case "Home": e.preventDefault(); go(1); break;
       case "End": e.preventDefault(); go(total); break;
       case "n": case "N": document.body.classList.toggle("show-notes"); break;
+      case "f": case "F": toggleFullscreen(); break;
       case "Escape": toggleGrid(); break;
     }
   });
@@ -133,6 +134,23 @@
   // Hud buttons and grid.
   document.getElementById("notes-btn").addEventListener("click", () => document.body.classList.toggle("show-notes"));
   document.getElementById("grid-btn").addEventListener("click", toggleGrid);
+
+  // Full screen. Phones without the API (iPhone Safari) get the add-to-home-screen hint instead.
+  const fsBtn = document.getElementById("fullscreen-btn");
+  const fsHelp = document.getElementById("fullscreen-help");
+  async function toggleFullscreen() {
+    try {
+      if (document.fullscreenElement) await document.exitFullscreen();
+      else if (document.documentElement.requestFullscreen) await document.documentElement.requestFullscreen();
+      else fsHelp.showModal();
+    } catch { fsHelp.showModal(); }
+  }
+  fsBtn.addEventListener("click", toggleFullscreen);
+  fsHelp.querySelector("[data-close]").addEventListener("click", () => fsHelp.close());
+  document.addEventListener("fullscreenchange", () => {
+    fsBtn.textContent = document.fullscreenElement ? "Exit full screen ⛶" : "Full screen ⛶";
+    fitHeadlines(slides[cur.slide - 1]);
+  });
   function toggleGrid() { grid.hidden = !grid.hidden; if (!grid.hidden) grid.querySelector("a.current")?.scrollIntoView({ block: "center" }); }
   grid.addEventListener("click", (e) => { if (e.target.closest("a")) grid.hidden = true; });
 })();
