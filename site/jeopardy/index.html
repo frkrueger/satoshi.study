@@ -4,7 +4,13 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
     <meta name="color-scheme" content="dark" />
-    <link rel="icon" href="data:," />
+    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 64 64%27%3E%3Crect width=%2764%27 height=%2764%27 rx=%2712%27 fill=%27%23101eb8%27/%3E%3Ctext x=%2732%27 y=%2746%27 font-family=%27Arial Black,Arial%27 font-weight=%27900%27 font-size=%2740%27 text-anchor=%27middle%27 fill=%27%23ffce00%27%3E%E2%82%BF%3C/text%3E%3C/svg%3E" />
+    <meta name="description" content="Bitcoin Jeopardy — 30 clues across six categories, scored in sats. Teams, wagers, a Daily Double and Final Jeopardy." />
+    <meta property="og:title" content="Bitcoin Jeopardy" />
+    <meta property="og:description" content="30 clues, six categories, scored in sats. Play it with your meetup." />
+    <meta property="og:image" content="https://satoshi.study/jeopardy/og.png" />
+    <meta property="og:url" content="https://satoshi.study/jeopardy/" />
+    <meta name="twitter:card" content="summary_large_image" />
     <title>Bitcoin Jeopardy</title>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -261,10 +267,12 @@
         text-wrap: balance;
         margin: 0;
       }
+      .overlay.revealed .clue { font-size: clamp(20px, 3.6vw, 34px); }
+      .overlay.revealed .a-text { font-size: clamp(20px, 3.4vw, 32px); }
       .answer {
         display: none;
-        margin-top: clamp(20px, 4vh, 38px);
-        padding-top: clamp(16px, 3vh, 28px);
+        margin-top: clamp(14px, 2.5vh, 26px);
+        padding-top: clamp(12px, 2vh, 20px);
         border-top: 2px solid rgba(255,255,255,.28);
         width: 100%;
       }
@@ -342,6 +350,179 @@
         .btn, .tile { transition: none; }
         .btn-final.pulse { animation: none; }
       }
+
+      /* ---------- Scoreboard ---------- */
+      .btn-ghost {
+        background: transparent;
+        color: #fff;
+        border: 2px solid #5a67c9;
+        font-size: 18px;
+        padding: 0 14px;
+        min-height: 52px;
+        min-width: 52px;
+      }
+      .btn-ghost:hover { border-color: #fff; }
+      .teams {
+        display: flex;
+        gap: 8px;
+        padding: 8px 12px 0;
+        max-width: 1440px;
+        width: 100%;
+        margin: 0 auto;
+        align-items: stretch;
+      }
+      .team {
+        flex: 1 1 0;
+        min-width: 0;
+        background: var(--panel);
+        border: 2px solid var(--line);
+        border-radius: var(--radius);
+        padding: 6px 10px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 2px;
+      }
+      .team.lead { box-shadow: inset 0 0 0 2px var(--gold); }
+      .team .name {
+        font-weight: 700;
+        font-size: clamp(12px, 1.8vw, 15px);
+        color: #dfe4ff;
+        text-transform: uppercase;
+        letter-spacing: .08em;
+        outline: none;
+        border-bottom: 1px dashed transparent;
+        max-width: 100%;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+      .team .name:hover, .team .name:focus { border-bottom-color: #8a95e0; }
+      .team .score {
+        font-family: "Barlow Condensed", sans-serif;
+        font-weight: 700;
+        font-size: clamp(22px, 3.2vw, 34px);
+        line-height: 1;
+        color: var(--gold);
+        white-space: nowrap;
+      }
+      .team .score.neg { color: #ff8a80; }
+      .team .score small { font-size: .42em; letter-spacing: .12em; margin-left: 4px; opacity: .8; }
+      .team-tools { display: flex; flex-direction: column; gap: 4px; justify-content: center; }
+      .team-tools button {
+        appearance: none; border: 2px solid #5a67c9; background: transparent; color: #fff;
+        border-radius: 8px; width: 34px; height: 30px; font-size: 17px; font-weight: 800; cursor: pointer; line-height: 1;
+      }
+      .team-tools button:disabled { opacity: .3; cursor: default; }
+
+      /* ---------- Timer & judging ---------- */
+      .timer {
+        font-family: "Barlow Condensed", sans-serif;
+        font-weight: 700;
+        font-size: clamp(24px, 3.6vw, 34px);
+        color: #fff;
+        min-width: 2.2em;
+        text-align: center;
+        line-height: 1;
+        border-radius: 999px;
+        padding: 6px 12px;
+        background: rgba(0,0,0,.25);
+      }
+      .timer[hidden] { display: none; }
+      .timer.warn { color: var(--gold); }
+      .timer.out { color: #ff8a80; animation: blink .5s steps(2) 4; }
+      @keyframes blink { 50% { opacity: .2; } }
+      .phase[hidden] { display: none; }
+      .phase { width: 100%; }
+      .dd-title {
+        font-family: "Barlow Condensed", sans-serif;
+        font-weight: 700;
+        font-size: clamp(44px, 9vw, 96px);
+        line-height: 1;
+        color: var(--gold);
+        letter-spacing: .04em;
+        text-shadow: 4px 4px 0 rgba(0,0,0,.4);
+      }
+      .dd-sub { color: #dfe4ff; font-size: clamp(15px, 2.2vw, 19px); margin: 10px 0 22px; }
+      .wager-list { display: flex; flex-direction: column; gap: 10px; max-width: 720px; margin: 0 auto; width: 100%; }
+      @media (max-width: 560px) { .wager { grid-template-columns: 1fr; } .wager .steps { justify-content: space-between; } .wager input { width: 6em; } .judge { grid-auto-flow: row; } }
+      .wager {
+        display: grid;
+        grid-template-columns: 1fr auto;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 10px;
+        background: rgba(0,0,0,.22);
+        border-radius: 12px;
+        padding: 10px 14px;
+        text-align: left;
+        cursor: pointer;
+      }
+      .wager.sel { box-shadow: inset 0 0 0 3px var(--gold); }
+      .wager .w-name { font-weight: 800; text-transform: uppercase; letter-spacing: .06em; }
+      .wager .w-max { font-size: 12px; color: #cdd5ff; font-weight: 600; }
+      .wager input {
+        width: 9em;
+        font: inherit;
+        font-family: "Barlow Condensed", sans-serif;
+        font-weight: 700;
+        font-size: 22px;
+        text-align: right;
+        padding: 6px 10px;
+        border-radius: 8px;
+        border: 2px solid #5a67c9;
+        background: #050a38;
+        color: var(--gold);
+      }
+      .wager input:focus { outline: none; border-color: var(--gold); }
+      .judge { display: grid; grid-auto-flow: column; grid-auto-columns: 1fr; gap: 14px; max-width: 1100px; margin: 16px auto 0; width: 100%; }
+      .judge[hidden] { display: none; }
+      .jrow {
+        display: flex;
+        flex-direction: column;
+        align-items: stretch;
+        gap: 10px;
+        background: rgba(0,0,0,.22);
+        border-radius: 16px;
+        padding: 14px;
+        text-align: center;
+      }
+      .jrow .j-name { font-family: "Barlow Condensed", sans-serif; font-weight: 700; font-size: clamp(20px, 3vw, 30px); text-transform: uppercase; letter-spacing: .06em; line-height: 1; }
+      .jrow .j-val { font-size: clamp(13px, 1.8vw, 16px); color: #cdd5ff; font-weight: 700; margin-bottom: 4px; }
+      .jrow .jb {
+        appearance: none; border: 0; cursor: pointer; font-family: inherit; font-weight: 800;
+        border-radius: 14px; padding: 0 16px; min-height: clamp(56px, 8vh, 76px); font-size: clamp(18px, 2.4vw, 24px);
+        touch-action: manipulation; user-select: none;
+      }
+      .jrow .jb:active { transform: scale(.97); }
+      .jrow .jb.yes { background: #19c37d; color: #03140c; }
+      .jrow .jb.no { background: #b3261e; color: #fff; }
+      .jrow .jb:disabled { opacity: .3; cursor: default; }
+      .jrow.right { box-shadow: inset 0 0 0 4px #19c37d; }
+      .jrow.wrong { box-shadow: inset 0 0 0 4px #b3261e; }
+      .jrow .undo { background: transparent; border: 2px solid rgba(255,255,255,.5); color: #fff; min-height: 56px; font-size: 17px; }
+      .jrow .verdict { font-family: "Barlow Condensed", sans-serif; font-weight: 700; font-size: clamp(26px, 4vw, 44px); line-height: 1.1; padding: 10px 0; }
+      .jrow.right .verdict { color: #19c37d; }
+      .jrow.wrong .verdict { color: #ff8a80; }
+      .wager .steps { display: flex; gap: 6px; align-items: center; }
+      .wager .steps button {
+        appearance: none; border: 2px solid #5a67c9; background: #050a38; color: #fff; font-family: inherit; font-weight: 800;
+        border-radius: 10px; min-width: 56px; min-height: 48px; font-size: 16px; cursor: pointer; touch-action: manipulation;
+      }
+      .wager .steps button:active { transform: scale(.96); }
+      @media (hover: none) { .kbd { display: none; } }
+      .kbd { font-size: 11px; color: #aab3e8; width: 100%; text-align: center; margin-top: 4px; }
+      .kbd b { display: inline-block; border: 1px solid #5a67c9; border-radius: 4px; padding: 0 5px; margin: 0 2px; color: #fff; font-weight: 700; }
+      .btn-timer { min-width: 88px; }
+      .btn-timer.on { border-color: var(--gold); color: var(--gold); }
+      @media (max-width: 560px) {
+        .teams { padding: 6px 7px 0; gap: 5px; }
+        .team { padding: 4px 6px; border-radius: 7px; }
+        .team .name { letter-spacing: .04em; }
+        .team-tools { flex-direction: row; }
+        .btn-ghost { min-height: 50px; }
+        .kbd { display: none; }
+      }
     </style>
   </head>
   <body>
@@ -351,31 +532,46 @@
         <span class="count" id="count">0 / 30</span>
         <span class="label" id="statusLabel">clues played — <strong>tap a square to start</strong></span>
       </div>
+      <button class="btn btn-ghost" id="fsBtn" type="button" title="Full screen (F)" aria-label="Full screen">⛶</button>
       <button class="btn btn-final" id="finalBtn" type="button">FINAL JEOPARDY</button>
       <button class="btn btn-reset" id="resetBtn" type="button">↺ Reset board</button>
     </div>
 
+    <div class="teams" id="teams" aria-label="Scoreboard"></div>
+
     <main>
       <div class="board" id="board" role="grid" aria-label="Bitcoin Jeopardy board"></div>
-      <p class="hint">Tap a square for the clue. <b>Reveal the answer</b>, then tap <b>Done</b> — played squares grey out.</p>
+      <p class="hint">Tap a square for the clue. <b>Reveal</b>, then mark who got it — scores are in sats. Tap a name to rename it. One square hides a <b>Daily Double</b>.</p>
     </main>
 
     <div class="overlay" id="overlay" role="dialog" aria-modal="true" aria-labelledby="mClue">
       <div class="overlay-top">
         <div class="overlay-amt" id="mAmt"></div>
+        <div class="timer" id="timer" hidden aria-live="polite">30</div>
         <div class="overlay-amt" id="mCat" style="color:#cdd5ff;"></div>
       </div>
       <div class="overlay-body">
-        <p class="clue" id="mClue"></p>
-        <div class="answer" id="mAnsWrap">
-          <div class="a-label">Correct response</div>
-          <div class="a-text" id="mAns"></div>
+        <div class="phase" id="phWager" hidden>
+          <div class="dd-title" id="wTitle">DAILY DOUBLE</div>
+          <p class="dd-sub" id="wSub"></p>
+          <div class="wager-list" id="wList"></div>
+        </div>
+        <div class="phase" id="phClue">
+          <p class="clue" id="mClue"></p>
+          <div class="answer" id="mAnsWrap">
+            <div class="a-label">Correct response</div>
+            <div class="a-text" id="mAns"></div>
+          </div>
+          <div class="judge" id="judge" hidden></div>
         </div>
       </div>
       <div class="overlay-actions">
+        <button class="btn btn-reveal" id="mGo" type="button" style="display:none;">Show the clue</button>
+        <button class="btn btn-keep btn-timer" id="mTimer" type="button">⏱ 30s</button>
         <button class="btn btn-reveal" id="mReveal" type="button">Reveal answer</button>
         <button class="btn btn-done" id="mDone" type="button" style="display:none;">Done — back to board</button>
         <button class="btn btn-keep" id="mKeep" type="button">Put it back — don’t mark played</button>
+        <div class="kbd"><b>R</b> reveal · <b>T</b> timer · <b>1</b>–<b>4</b> team got it · <b>Enter</b> done · <b>Esc</b> put back · <b>F</b> full screen</div>
       </div>
     </div>
 
@@ -421,25 +617,39 @@
       ];
       const FINAL = {amt:"FINAL JEOPARDY — FIRSTS", clue:"In October 2009, the New Liberty Standard published the first-ever BTC exchange rate, valuing one U.S. dollar at this many bitcoin — priced from the cost of the electricity used to mine them.", ans:"What is 1,309 BTC?"};
 
-      const board = document.getElementById('board');
-      const overlay = document.getElementById('overlay');
-      const mAmt = document.getElementById('mAmt');
-      const mCat = document.getElementById('mCat');
-      const mClue = document.getElementById('mClue');
-      const mAns = document.getElementById('mAns');
-      const mAnsWrap = document.getElementById('mAnsWrap');
-      const mReveal = document.getElementById('mReveal');
-      const mDone = document.getElementById('mDone');
-      const mKeep = document.getElementById('mKeep');
-      const finalBtn = document.getElementById('finalBtn');
-      const resetBtn = document.getElementById('resetBtn');
-      const countEl = document.getElementById('count');
-      const statusLabel = document.getElementById('statusLabel');
+      const $ = function (id) { return document.getElementById(id); };
+      const board = $('board'), overlay = $('overlay'), teamsEl = $('teams');
+      const mAmt = $('mAmt'), mCat = $('mCat'), mClue = $('mClue'), mAns = $('mAns'), mAnsWrap = $('mAnsWrap');
+      const mReveal = $('mReveal'), mDone = $('mDone'), mKeep = $('mKeep'), mGo = $('mGo'), mTimer = $('mTimer');
+      const finalBtn = $('finalBtn'), resetBtn = $('resetBtn'), fsBtn = $('fsBtn');
+      const countEl = $('count'), statusLabel = $('statusLabel');
+      const phWager = $('phWager'), phClue = $('phClue'), wTitle = $('wTitle'), wSub = $('wSub'), wList = $('wList');
+      const judge = $('judge'), timerEl = $('timer');
+      const TOP = 10000, TIMER_SECS = 30, MAX_TEAMS = 4;
 
-      let currentTile = null;
-      let played = 0;
+      // ---------- Persistent state ----------
+      const KEY = 'btc-jeopardy-v2';
+      function fresh(names) {
+        return {
+          played: [],
+          teams: (names || ['Matteo', 'Ben']).map(function (n) { return { name: n, score: 0 }; }),
+          dd: 6 + Math.floor(Math.random() * 24),   // any tile below the top row
+          finalDone: false
+        };
+      }
+      function load() {
+        try {
+          const s = JSON.parse(localStorage.getItem(KEY));
+          if (s && Array.isArray(s.played) && Array.isArray(s.teams) && s.teams.length) return s;
+        } catch (e) {}
+        return null;
+      }
+      function save() { try { localStorage.setItem(KEY, JSON.stringify(S)); } catch (e) {} }
+      let S = load() || fresh();
+
+      // ---------- Board ----------
       const tiles = [];
-
+      const fmt = function (n) { return n.toLocaleString('en-US'); };
       DATA.forEach(function (c) {
         const d = document.createElement('div');
         d.className = 'cat';
@@ -447,91 +657,392 @@
         board.appendChild(d);
       });
       for (let r = 0; r < 5; r++) {
-        DATA.forEach(function (c) {
+        DATA.forEach(function (c, col) {
+          const idx = r * 6 + col;
           const entry = c.clues[r];
           const amt = entry[0], clue = entry[1], ans = entry[2];
           const t = document.createElement('button');
           t.type = 'button';
           t.className = 'tile';
-          const label = amt.toLocaleString('en-US') + ' sats';
-          t.innerHTML = '<span class="n">' + amt.toLocaleString('en-US') + '</span><span class="u">sats</span>';
-          t.setAttribute('aria-label', c.cat + ' for ' + label);
+          t.innerHTML = '<span class="n">' + fmt(amt) + '</span><span class="u">sats</span>';
+          t.setAttribute('aria-label', c.cat + ' for ' + fmt(amt) + ' sats');
           t.addEventListener('click', function () {
             if (t.classList.contains('used')) return;
-            currentTile = t;
-            openCard(label, c.cat, clue, ans);
+            openTile(idx, amt, c.cat, clue, ans);
           });
           board.appendChild(t);
           tiles.push(t);
         });
       }
+      function markUsed(idx) {
+        const t = tiles[idx];
+        t.classList.add('used');
+        t.setAttribute('aria-label', t.getAttribute('aria-label').replace(' — played', '') + ' — played');
+      }
 
       function updateStatus() {
+        const played = S.played.length;
         countEl.textContent = played + ' / 30';
-        if (played === 30) {
+        finalBtn.disabled = S.finalDone;
+        finalBtn.classList.remove('pulse');
+        if (S.finalDone) {
+          const lead = leaders();
+          statusLabel.innerHTML = lead.length === 1
+            ? '<strong>' + esc(lead[0].name) + ' wins</strong> with ' + fmt(lead[0].score) + ' sats'
+            : '<strong>tie</strong> at ' + fmt(lead[0].score) + ' sats';
+        } else if (played === 30) {
           statusLabel.innerHTML = 'board clear — <strong>time for Final Jeopardy</strong>';
-          if (!finalBtn.disabled) finalBtn.classList.add('pulse');
+          finalBtn.classList.add('pulse');
         } else if (played === 0) {
           statusLabel.innerHTML = 'clues played — <strong>tap a square to start</strong>';
-          finalBtn.classList.remove('pulse');
         } else {
           statusLabel.innerHTML = 'clues played — <strong>' + (30 - played) + ' left</strong>';
-          finalBtn.classList.remove('pulse');
         }
       }
+      function esc(s) { return s.replace(/[&<>"]/g, function (ch) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[ch]; }); }
+      function leaders() {
+        const top = Math.max.apply(null, S.teams.map(function (t) { return t.score; }));
+        return S.teams.filter(function (t) { return t.score === top; });
+      }
 
-      function openCard(amtLabel, catLabel, clue, ans) {
-        mAmt.textContent = amtLabel;
-        mCat.textContent = catLabel;
-        mClue.textContent = clue;
-        mAns.textContent = ans;
-        mAnsWrap.classList.remove('show');
-        mReveal.style.display = '';
-        mDone.style.display = 'none';
-        mKeep.style.display = '';
+      // ---------- Scoreboard ----------
+      function renderTeams() {
+        teamsEl.innerHTML = '';
+        const top = Math.max.apply(null, S.teams.map(function (t) { return t.score; }));
+        const anyScore = S.teams.some(function (t) { return t.score !== 0; });
+        S.teams.forEach(function (t, i) {
+          const d = document.createElement('div');
+          d.className = 'team' + (anyScore && t.score === top ? ' lead' : '');
+          const name = document.createElement('div');
+          name.className = 'name';
+          name.contentEditable = 'true';
+          name.spellcheck = false;
+          name.textContent = t.name;
+          name.title = 'Tap to rename';
+          name.addEventListener('keydown', function (e) { if (e.key === 'Enter') { e.preventDefault(); name.blur(); } e.stopPropagation(); });
+          name.addEventListener('blur', function () {
+            const v = name.textContent.trim().slice(0, 24);
+            t.name = v || ('Team ' + (i + 1));
+            name.textContent = t.name;
+            save();
+          });
+          const sc = document.createElement('div');
+          sc.className = 'score' + (t.score < 0 ? ' neg' : '');
+          sc.innerHTML = fmt(t.score) + '<small>SATS</small>';
+          d.appendChild(name);
+          d.appendChild(sc);
+          teamsEl.appendChild(d);
+        });
+        const tools = document.createElement('div');
+        tools.className = 'team-tools';
+        const add = document.createElement('button');
+        add.type = 'button'; add.textContent = '+'; add.title = 'Add a team';
+        add.disabled = S.teams.length >= MAX_TEAMS;
+        add.addEventListener('click', function () {
+          S.teams.push({ name: 'Team ' + (S.teams.length + 1), score: 0 });
+          save(); renderTeams();
+        });
+        const rem = document.createElement('button');
+        rem.type = 'button'; rem.textContent = '−'; rem.title = 'Remove last team';
+        rem.disabled = S.teams.length <= 1;
+        rem.addEventListener('click', function () {
+          S.teams.pop();
+          save(); renderTeams(); updateStatus();
+        });
+        tools.appendChild(add); tools.appendChild(rem);
+        teamsEl.appendChild(tools);
+      }
+
+      // ---------- Clue card ----------
+      // card = { kind: 'normal'|'dd'|'final', idx, amt, clue, ans, cat, wagers: {teamIndex: sats}, decided: {teamIndex: 'right'|'wrong'} }
+      let card = null;
+
+      function openOverlay() {
         overlay.classList.add('open');
         document.body.style.overflow = 'hidden';
+      }
+      function closeOverlay() {
+        overlay.classList.remove('open');
+        overlay.classList.remove('revealed');
+        document.body.style.overflow = '';
+        stopTimer(true);
+        if (card && card.kind === 'normal' && tiles[card.idx]) tiles[card.idx].focus();
+        card = null;
+      }
+      function showPhase(which) {
+        phWager.hidden = which !== 'wager';
+        phClue.hidden = which !== 'clue';
+      }
+      function setActions(o) {
+        mGo.style.display = o.go ? '' : 'none';
+        mTimer.style.display = o.timer ? '' : 'none';
+        mReveal.style.display = o.reveal ? '' : 'none';
+        mDone.style.display = o.done ? '' : 'none';
+        mKeep.style.display = o.keep ? '' : 'none';
+      }
+
+      function openTile(idx, amt, cat, clue, ans) {
+        card = { kind: 'normal', idx: idx, amt: amt, cat: cat, clue: clue, ans: ans, wagers: {}, decided: {} };
+        if (idx === S.dd) { card.kind = 'dd'; openDailyDouble(); return; }
+        mAmt.textContent = fmt(amt) + ' sats';
+        mCat.textContent = cat;
+        showClue();
+        setActions({ timer: true, reveal: true, keep: true });
+        openOverlay();
         mReveal.focus();
       }
-      function closeCard(markPlayed) {
-        overlay.classList.remove('open');
-        document.body.style.overflow = '';
-        if (markPlayed && currentTile && !currentTile.classList.contains('used')) {
-          currentTile.classList.add('used');
-          currentTile.setAttribute('aria-label', currentTile.getAttribute('aria-label') + ' — played');
-          played++;
-          updateStatus();
-        }
-        if (currentTile) currentTile.focus();
-        currentTile = null;
+
+      function showClue() {
+        mClue.textContent = card.clue;
+        mAns.textContent = card.ans;
+        mAnsWrap.classList.remove('show');
+        judge.hidden = true;
+        judge.innerHTML = '';
+        timerEl.hidden = true;
+        showPhase('clue');
       }
 
+      // A wager field with tap steppers: −1k, +1k, All in.
+      function wagerInput(max, initial, row, onEnter) {
+        const wrap = document.createElement('div');
+        wrap.className = 'steps';
+        const inp = document.createElement('input');
+        inp.type = 'number'; inp.min = 0; inp.max = max; inp.step = 100; inp.value = initial; inp.inputMode = 'numeric';
+        inp.addEventListener('keydown', function (e) { e.stopPropagation(); if (e.key === 'Enter' && onEnter) onEnter(); });
+        const clamp = function (n) { return Math.max(0, Math.min(max, n)); };
+        const step = function (label, fn) {
+          const b = document.createElement('button');
+          b.type = 'button'; b.textContent = label;
+          b.addEventListener('click', function (e) { e.preventDefault(); inp.value = clamp(fn(Math.round(Number(inp.value) || 0))); });
+          wrap.appendChild(b);
+        };
+        step('−1k', function (n) { return n - 1000; });
+        wrap.appendChild(inp);
+        step('+1k', function (n) { return n + 1000; });
+        step('All in', function () { return max; });
+        row.appendChild(wrap);
+        return inp;
+      }
+
+      // --- Daily Double: choose the team that found it and a wager ---
+      function openDailyDouble() {
+        mAmt.textContent = 'Daily Double';
+        mCat.textContent = card.cat;
+        wTitle.textContent = 'DAILY DOUBLE';
+        wSub.textContent = 'Which team picked it? Set their wager — up to their score or ' + fmt(TOP) + ' sats, whichever is higher.';
+        wList.innerHTML = '';
+        let sel = 0;
+        const rows = S.teams.map(function (t, i) {
+          const max = Math.max(t.score, TOP);
+          const row = document.createElement('label');
+          row.className = 'wager' + (i === sel ? ' sel' : '');
+          row.innerHTML = '<div><div class="w-name">' + esc(t.name) + '</div><div class="w-max">max ' + fmt(max) + ' sats</div></div>';
+          const inp = wagerInput(max, Math.min(max, TOP), row, function () { mGo.click(); });
+          row.addEventListener('click', function () { sel = i; rows.forEach(function (r, j) { r.classList.toggle('sel', j === i); }); });
+          wList.appendChild(row);
+          return row;
+        });
+        showPhase('wager');
+        setActions({ go: true, keep: true });
+        mGo.onclick = function () {
+          const inp = rows[sel].querySelector('input');
+          const max = Math.max(S.teams[sel].score, TOP);
+          const w = Math.max(0, Math.min(max, Math.round(Number(inp.value) || 0)));
+          card.wagers = {}; card.wagers[sel] = w;
+          mAmt.textContent = 'Daily Double · ' + S.teams[sel].name + ' wagers ' + fmt(w) + ' sats';
+          showClue();
+          setActions({ timer: true, reveal: true, keep: true });
+          mReveal.focus();
+        };
+        openOverlay();
+        rows[0].querySelector('input').focus();
+      }
+
+      // --- Final Jeopardy: every team wagers, then one clue ---
+      finalBtn.addEventListener('click', function () {
+        if (S.finalDone) return;
+        card = { kind: 'final', idx: -1, amt: 0, cat: 'Firsts', clue: FINAL.clue, ans: FINAL.ans, wagers: {}, decided: {} };
+        mAmt.textContent = 'Final Jeopardy';
+        mCat.textContent = 'Firsts';
+        wTitle.textContent = 'FINAL JEOPARDY';
+        wSub.textContent = 'Category: Firsts. Each team wagers up to their current score.';
+        wList.innerHTML = '';
+        const inputs = S.teams.map(function (t, i) {
+          const max = Math.max(0, t.score);
+          const row = document.createElement('label');
+          row.className = 'wager';
+          row.innerHTML = '<div><div class="w-name">' + esc(t.name) + '</div><div class="w-max">has ' + fmt(t.score) + ' sats</div></div>';
+          const inp = wagerInput(max, max, row, null);
+          wList.appendChild(row);
+          return inp;
+        });
+        showPhase('wager');
+        setActions({ go: true, keep: true });
+        mKeep.textContent = 'Back to board';
+        mGo.onclick = function () {
+          inputs.forEach(function (inp, i) {
+            const max = Math.max(0, S.teams[i].score);
+            card.wagers[i] = Math.max(0, Math.min(max, Math.round(Number(inp.value) || 0)));
+          });
+          showClue();
+          setActions({ timer: true, reveal: true });
+          mReveal.focus();
+        };
+        openOverlay();
+        if (inputs[0]) inputs[0].focus();
+      });
+
+      // --- Reveal + judging ---
       mReveal.addEventListener('click', function () {
+        stopTimer(false);
         mAnsWrap.classList.add('show');
-        mReveal.style.display = 'none';
-        mDone.style.display = '';
+        overlay.classList.add('revealed');
+        renderJudge();
+        setActions({ done: true });
         mDone.focus();
       });
-      mDone.addEventListener('click', function () { closeCard(true); });
-      mKeep.addEventListener('click', function () { closeCard(false); });
+
+      function valueFor(i) {
+        if (card.kind === 'normal') return card.amt;
+        return card.wagers[i] == null ? null : card.wagers[i];
+      }
+      function renderJudge() {
+        judge.innerHTML = '';
+        judge.hidden = false;
+        const someoneRight = Object.keys(card.decided).some(function (k) { return card.decided[k] === 'right'; });
+        S.teams.forEach(function (t, i) {
+          const v = valueFor(i);
+          if (v == null) return;                       // Daily Double: only the wagering team plays
+          const row = document.createElement('div');
+          const st = card.decided[i];
+          row.className = 'jrow' + (st ? ' ' + st : '');
+          row.innerHTML = '<div><div class="j-name">' + (card.kind === 'final' ? '' : '<span style="opacity:.6">' + (i + 1) + ' · </span>') + esc(t.name) + '</div>'
+            + '<div class="j-val">' + (st === 'right' ? '+' : st === 'wrong' ? '−' : '±') + fmt(v) + ' sats</div></div>';
+          if (st) {
+            const vd = document.createElement('div');
+            vd.className = 'verdict';
+            vd.textContent = st === 'right' ? '✓ +' + fmt(v) : '✗ −' + fmt(v);
+            const u = document.createElement('button');
+            u.type = 'button'; u.className = 'jb undo'; u.textContent = 'Undo';
+            u.addEventListener('click', function () { applyJudge(i, null); });
+            row.appendChild(vd); row.appendChild(u);
+          } else {
+            const no = document.createElement('button');
+            no.type = 'button'; no.className = 'jb no'; no.textContent = '✗ Wrong';
+            no.addEventListener('click', function () { applyJudge(i, 'wrong'); });
+            const yes = document.createElement('button');
+            yes.type = 'button'; yes.className = 'jb yes'; yes.textContent = '✓ Got it';
+            // only one team can take a normal clue; Final Jeopardy is judged per team
+            yes.disabled = card.kind !== 'final' && someoneRight;
+            yes.addEventListener('click', function () { applyJudge(i, 'right'); });
+            row.appendChild(yes); row.appendChild(no);
+          }
+          judge.appendChild(row);
+        });
+      }
+      function applyJudge(i, verdict) {
+        const v = valueFor(i);
+        const prev = card.decided[i];
+        if (prev === 'right') S.teams[i].score -= v;
+        if (prev === 'wrong') S.teams[i].score += v;
+        if (verdict === 'right') S.teams[i].score += v;
+        if (verdict === 'wrong') S.teams[i].score -= v;
+        if (verdict) card.decided[i] = verdict; else delete card.decided[i];
+        save(); renderTeams(); renderJudge();
+      }
+
+      mDone.addEventListener('click', function () {
+        if (!card) return;
+        if (card.kind === 'final') {
+          S.finalDone = true;
+        } else if (S.played.indexOf(card.idx) < 0) {
+          S.played.push(card.idx);
+          markUsed(card.idx);
+        }
+        save(); updateStatus(); closeOverlay();
+      });
+      mKeep.addEventListener('click', function () { mKeep.textContent = 'Put it back — don’t mark played'; closeOverlay(); });
+
+      // ---------- Timer ----------
+      let tLeft = 0, tHandle = null, audio = null;
+      function beep() {
+        try {
+          audio = audio || new (window.AudioContext || window.webkitAudioContext)();
+          const o = audio.createOscillator(), g = audio.createGain();
+          o.type = 'square'; o.frequency.value = 660;
+          g.gain.setValueAtTime(.18, audio.currentTime);
+          g.gain.exponentialRampToValueAtTime(.001, audio.currentTime + .7);
+          o.connect(g); g.connect(audio.destination);
+          o.start(); o.stop(audio.currentTime + .7);
+        } catch (e) {}
+      }
+      function paintTimer() {
+        timerEl.textContent = tLeft;
+        timerEl.classList.toggle('warn', tLeft <= 10 && tLeft > 0);
+        timerEl.classList.toggle('out', tLeft === 0);
+      }
+      function startTimer() {
+        stopTimer(true);
+        tLeft = TIMER_SECS;
+        timerEl.hidden = false;
+        paintTimer();
+        mTimer.textContent = '■ Stop';
+        mTimer.classList.add('on');
+        tHandle = setInterval(function () {
+          tLeft--;
+          paintTimer();
+          if (tLeft <= 0) { stopTimer(false); beep(); }
+        }, 1000);
+      }
+      function stopTimer(hide) {
+        if (tHandle) clearInterval(tHandle);
+        tHandle = null;
+        mTimer.textContent = '⏱ ' + TIMER_SECS + 's';
+        mTimer.classList.remove('on');
+        if (hide) timerEl.hidden = true;
+      }
+      mTimer.addEventListener('click', function () { tHandle ? stopTimer(false) : startTimer(); });
+
+      // ---------- Full screen ----------
+      function toggleFullscreen() {
+        const el = document.documentElement;
+        if (document.fullscreenElement || document.webkitFullscreenElement) {
+          (document.exitFullscreen || document.webkitExitFullscreen).call(document);
+        } else if (el.requestFullscreen) {
+          el.requestFullscreen().catch(function () {});
+        } else if (el.webkitRequestFullscreen) {
+          el.webkitRequestFullscreen();
+        } else {
+          fsBtn.title = 'Full screen is not available in this browser — use Share → Add to Home Screen';
+        }
+      }
+      fsBtn.addEventListener('click', toggleFullscreen);
+      document.addEventListener('fullscreenchange', function () { fsBtn.textContent = document.fullscreenElement ? '⤢' : '⛶'; });
+
+      // ---------- Keyboard ----------
       document.addEventListener('keydown', function (e) {
-        if (e.key === 'Escape' && overlay.classList.contains('open')) closeCard(false);
+        if (e.metaKey || e.ctrlKey || e.altKey) return;
+        const tag = (e.target.tagName || '').toLowerCase();
+        if (tag === 'input' || e.target.isContentEditable) return;
+        const k = e.key.toLowerCase();
+        if (k === 'f') { e.preventDefault(); toggleFullscreen(); return; }
+        if (!overlay.classList.contains('open')) return;
+        if (k === 'escape' && mKeep.style.display !== 'none') { mKeep.click(); return; }
+        if (k === 'enter' && mGo.style.display !== 'none') { e.preventDefault(); mGo.click(); return; }
+        if (k === 'r' && mReveal.style.display !== 'none') { mReveal.click(); return; }
+        if (k === 't' && mTimer.style.display !== 'none') { mTimer.click(); return; }
+        if (k === 'enter' && mDone.style.display !== 'none') { e.preventDefault(); mDone.click(); return; }
+        if (/^[1-4]$/.test(k) && !judge.hidden) {
+          const i = Number(k) - 1;
+          if (S.teams[i] && valueFor(i) != null && !card.decided[i]) {
+            const someoneRight = Object.keys(card.decided).some(function (x) { return card.decided[x] === 'right'; });
+            if (card.kind === 'final' || !someoneRight) applyJudge(i, 'right');
+          }
+        }
       });
 
-      finalBtn.addEventListener('click', function () {
-        currentTile = null;
-        openCard('Final Jeopardy', 'Firsts', FINAL.clue, FINAL.ans);
-        mKeep.style.display = 'none';
-        finalBtn.disabled = true;
-        finalBtn.classList.remove('pulse');
-        // restore the Keep button next time a normal tile opens
-        mDone.addEventListener('click', function h() { mKeep.style.display = ''; mDone.removeEventListener('click', h); });
-        mKeep.addEventListener('click', function h2() { mKeep.style.display = ''; mKeep.removeEventListener('click', h2); });
-      });
-
-      // Reset: two-tap confirm so a live host can't wipe the board by accident.
-      let resetArmed = false;
-      let resetTimer = null;
+      // ---------- Reset: two-tap confirm so a live host can't wipe the board by accident ----------
+      let resetArmed = false, resetTimer = null;
       resetBtn.addEventListener('click', function () {
         if (!resetArmed) {
           resetArmed = true;
@@ -548,16 +1059,18 @@
         resetArmed = false;
         resetBtn.classList.remove('confirm');
         resetBtn.textContent = '↺ Reset board';
+        S = fresh(S.teams.map(function (t) { return t.name; }));
         tiles.forEach(function (t) {
           t.classList.remove('used');
           t.setAttribute('aria-label', t.getAttribute('aria-label').replace(' — played', ''));
         });
-        played = 0;
-        finalBtn.disabled = false;
-        if (overlay.classList.contains('open')) closeCard(false);
-        updateStatus();
+        if (overlay.classList.contains('open')) closeOverlay();
+        save(); renderTeams(); updateStatus();
       });
 
+      // ---------- Boot: restore a game in progress ----------
+      S.played.forEach(markUsed);
+      renderTeams();
       updateStatus();
     </script>
   </body>

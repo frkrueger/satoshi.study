@@ -143,6 +143,7 @@ body.show-notes .slide.current .notes { display: block; }
 #grid a:hover, #grid a.current { border-color: var(--orange); }
 #grid a b { color: var(--orange); margin-right: 6px; }
 #grid a .k { color: var(--grey); font-size: 11px; text-transform: uppercase; letter-spacing: .12em; }
+#grid a.extra { border-style: dashed; border-color: var(--orange); }
 
 /* ---------------------------------------------------------------- portrait phones */
 @media (orientation: portrait) {
