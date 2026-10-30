@@ -1,0 +1,564 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="color-scheme" content="dark" />
+    <link rel="icon" href="data:," />
+    <title>Bitcoin Jeopardy</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700&family=Barlow:wght@500;600;700;800&family=Newsreader:opsz,wght@6..72,600;6..72,700&display=swap" rel="stylesheet" />
+    <style>
+      :root {
+        color-scheme: dark;
+        --bg: #03051c;
+        --panel: #070d5e;
+        --tile: #101eb8;
+        --tile-hover: #1c33e6;
+        --tile-used: #0a1160;
+        --tile-used-text: #454f9e;
+        --gold: #ffce00;
+        --gold-deep: #f7b500;
+        --ink: #ffffff;
+        --muted: #aab3e8;
+        --line: #000000;
+        --overlay: #0a1690;
+        --radius: 10px;
+      }
+      * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+      html, body { height: 100%; }
+      body {
+        margin: 0;
+        background: var(--bg);
+        color: var(--ink);
+        font-family: "Barlow", system-ui, -apple-system, "Segoe UI", sans-serif;
+        display: flex;
+        flex-direction: column;
+        min-height: 100dvh;
+        overscroll-behavior: none;
+      }
+
+      /* ---------- Control bar ---------- */
+      .controls {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        flex-wrap: wrap;
+        padding: 10px 12px;
+        background: #050a38;
+        border-bottom: 3px solid #000;
+      }
+      .status {
+        display: flex;
+        align-items: baseline;
+        gap: 8px;
+        margin-right: auto;
+        min-width: 0;
+      }
+      .status .count {
+        font-family: "Barlow Condensed", sans-serif;
+        font-weight: 700;
+        font-size: clamp(22px, 3.4vw, 32px);
+        letter-spacing: .04em;
+        color: var(--gold);
+        line-height: 1;
+        white-space: nowrap;
+      }
+      .status .label {
+        font-size: clamp(12px, 1.8vw, 14px);
+        font-weight: 600;
+        color: var(--muted);
+        white-space: nowrap;
+      }
+      .status .label strong { color: #fff; font-weight: 700; }
+      .btn {
+        appearance: none;
+        border: 0;
+        cursor: pointer;
+        font-family: inherit;
+        font-weight: 800;
+        letter-spacing: .02em;
+        border-radius: 999px;
+        touch-action: manipulation;
+        user-select: none;
+        transition: transform .08s ease, background .15s ease, opacity .15s ease;
+      }
+      .btn:active { transform: scale(.97); }
+      .btn:focus-visible { outline: 3px solid #fff; outline-offset: 2px; }
+      .btn-final {
+        background: var(--gold);
+        color: #11175e;
+        font-size: clamp(14px, 2.2vw, 17px);
+        padding: 13px 22px;
+        min-height: 52px;
+        box-shadow: 0 3px 0 #9a7b00;
+      }
+      .btn-final:hover { background: #ffda33; }
+      .btn-final:disabled { opacity: .38; box-shadow: none; cursor: default; }
+      .btn-final.pulse { animation: pulse 1.4s ease-in-out infinite; }
+      @keyframes pulse {
+        0%, 100% { box-shadow: 0 3px 0 #9a7b00, 0 0 0 0 rgba(255,206,0,.55); }
+        50% { box-shadow: 0 3px 0 #9a7b00, 0 0 0 12px rgba(255,206,0,0); }
+      }
+      .btn-reset {
+        background: transparent;
+        color: #fff;
+        border: 2px solid #5a67c9;
+        font-size: clamp(13px, 2vw, 15px);
+        padding: 11px 18px;
+        min-height: 52px;
+      }
+      .btn-reset:hover { border-color: #fff; }
+      .btn-reset.confirm { background: #b3261e; border-color: #b3261e; color: #fff; }
+
+      /* ---------- Board ---------- */
+      main {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        padding: 10px;
+        min-height: 0;
+      }
+      .board {
+        flex: 1;
+        display: grid;
+        grid-template-columns: repeat(6, minmax(0, 1fr));
+        grid-template-rows: auto repeat(5, 1fr);
+        gap: 7px;
+        min-height: 0;
+        max-width: 1440px;
+        width: 100%;
+        margin: 0 auto;
+      }
+      .cat {
+        background: var(--panel);
+        border: 2px solid var(--line);
+        border-radius: var(--radius);
+        color: #fff;
+        font-family: "Barlow Condensed", sans-serif;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: .05em;
+        font-size: clamp(10px, 1.9vw, 19px);
+        line-height: 1.08;
+        text-align: center;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 10px 4px;
+        min-height: 54px;
+        min-width: 0;
+        overflow: hidden;
+        text-wrap: balance;
+      }
+      .tile {
+        appearance: none;
+        border: 2px solid var(--line);
+        border-radius: var(--radius);
+        background: var(--tile);
+        color: var(--gold);
+        font-family: "Barlow Condensed", sans-serif;
+        font-weight: 700;
+        font-size: clamp(19px, 4.6vw, 46px);
+        letter-spacing: .02em;
+        cursor: pointer;
+        touch-action: manipulation;
+        user-select: none;
+        min-height: 62px;
+        min-width: 0;
+        overflow: hidden;
+        white-space: nowrap;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        line-height: 1;
+        padding: 6px 2px;
+        transition: background .12s ease, transform .08s ease;
+        text-shadow: 2px 2px 0 rgba(0,0,0,.45);
+      }
+      .tile .u {
+        font-size: .36em;
+        font-weight: 600;
+        letter-spacing: .12em;
+        text-transform: uppercase;
+        margin-top: .18em;
+        opacity: .85;
+      }
+      .tile:hover { background: var(--tile-hover); }
+      .tile:active { transform: scale(.965); }
+      .tile:focus-visible { outline: 3px solid var(--gold); outline-offset: 2px; z-index: 1; }
+      .tile.used {
+        background: var(--tile-used);
+        color: var(--tile-used-text);
+        cursor: default;
+        text-shadow: none;
+        box-shadow: inset 0 0 0 2px rgba(0,0,0,.35);
+      }
+      .tile.used:hover { background: var(--tile-used); }
+      .tile.used:active { transform: none; }
+
+      .hint {
+        text-align: center;
+        color: var(--muted);
+        font-size: 13px;
+        font-weight: 500;
+        padding: 9px 8px 2px;
+      }
+      .hint b { color: #dfe4ff; }
+
+      /* ---------- Clue overlay (full screen) ---------- */
+      .overlay {
+        position: fixed;
+        inset: 0;
+        z-index: 20;
+        background: var(--overlay);
+        display: none;
+        flex-direction: column;
+        padding: max(18px, env(safe-area-inset-top)) 20px max(20px, env(safe-area-inset-bottom));
+      }
+      .overlay.open { display: flex; }
+      .overlay-top {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        max-width: 980px;
+        width: 100%;
+        margin: 0 auto;
+      }
+      .overlay-amt {
+        font-family: "Barlow Condensed", sans-serif;
+        font-weight: 700;
+        letter-spacing: .14em;
+        text-transform: uppercase;
+        color: var(--gold);
+        font-size: clamp(15px, 2.6vw, 22px);
+      }
+      .overlay-body {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+        max-width: 980px;
+        width: 100%;
+        margin: 0 auto;
+        min-height: 0;
+        overflow-y: auto;
+        padding: 18px 4px;
+      }
+      .clue {
+        font-family: "Newsreader", Georgia, serif;
+        font-weight: 600;
+        font-size: clamp(26px, 5.6vw, 54px);
+        line-height: 1.22;
+        text-transform: uppercase;
+        letter-spacing: .01em;
+        text-shadow: 3px 3px 0 rgba(0,0,0,.35);
+        text-wrap: balance;
+        margin: 0;
+      }
+      .answer {
+        display: none;
+        margin-top: clamp(20px, 4vh, 38px);
+        padding-top: clamp(16px, 3vh, 28px);
+        border-top: 2px solid rgba(255,255,255,.28);
+        width: 100%;
+      }
+      .answer.show { display: block; }
+      .answer .a-label {
+        font-size: 12px;
+        font-weight: 800;
+        letter-spacing: .22em;
+        text-transform: uppercase;
+        color: #cdd5ff;
+        margin-bottom: 8px;
+      }
+      .answer .a-text {
+        font-family: "Newsreader", Georgia, serif;
+        font-weight: 700;
+        font-size: clamp(22px, 4.4vw, 40px);
+        line-height: 1.25;
+        color: var(--gold);
+        text-wrap: balance;
+      }
+      .overlay-actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 12px;
+        justify-content: center;
+        align-items: center;
+        max-width: 980px;
+        width: 100%;
+        margin: 0 auto;
+      }
+      .btn-reveal {
+        background: var(--gold);
+        color: #11175e;
+        font-size: clamp(17px, 2.6vw, 21px);
+        padding: 16px 34px;
+        min-height: 60px;
+        box-shadow: 0 4px 0 #9a7b00;
+        flex: 1 1 260px;
+        max-width: 440px;
+      }
+      .btn-reveal:hover { background: #ffda33; }
+      .btn-done {
+        background: #fff;
+        color: #11175e;
+        font-size: clamp(16px, 2.4vw, 19px);
+        padding: 15px 28px;
+        min-height: 60px;
+        flex: 1 1 220px;
+        max-width: 380px;
+      }
+      .btn-keep {
+        background: transparent;
+        color: #dfe4ff;
+        border: 2px solid rgba(255,255,255,.55);
+        font-size: 14px;
+        font-weight: 700;
+        padding: 12px 18px;
+        min-height: 52px;
+      }
+      .btn-keep:hover { border-color: #fff; color: #fff; }
+
+      @media (max-width: 560px) {
+        .controls { padding: 8px; gap: 8px; }
+        .status .label { display: none; }
+        .btn-final, .btn-reset { min-height: 50px; padding-left: 16px; padding-right: 16px; }
+        main { padding: 7px; }
+        .board { gap: 5px; }
+        .cat { min-height: 48px; padding: 7px 2px; border-radius: 7px; font-size: clamp(8.5px, 2.5vw, 11px); letter-spacing: .01em; }
+        .tile { min-height: 58px; border-radius: 7px; font-size: clamp(13px, 4vw, 19px); }
+        .hint { font-size: 12px; }
+        .overlay-actions .btn-reveal, .overlay-actions .btn-done { max-width: none; flex-basis: 100%; }
+        .btn-keep { flex-basis: 100%; }
+      }
+      @media (prefers-reduced-motion: reduce) {
+        .btn, .tile { transition: none; }
+        .btn-final.pulse { animation: none; }
+      }
+    </style>
+  </head>
+  <body>
+
+    <div class="controls">
+      <div class="status" aria-live="polite">
+        <span class="count" id="count">0 / 30</span>
+        <span class="label" id="statusLabel">clues played — <strong>tap a square to start</strong></span>
+      </div>
+      <button class="btn btn-final" id="finalBtn" type="button">FINAL JEOPARDY</button>
+      <button class="btn btn-reset" id="resetBtn" type="button">↺ Reset board</button>
+    </div>
+
+    <main>
+      <div class="board" id="board" role="grid" aria-label="Bitcoin Jeopardy board"></div>
+      <p class="hint">Tap a square for the clue. <b>Reveal the answer</b>, then tap <b>Done</b> — played squares grey out.</p>
+    </main>
+
+    <div class="overlay" id="overlay" role="dialog" aria-modal="true" aria-labelledby="mClue">
+      <div class="overlay-top">
+        <div class="overlay-amt" id="mAmt"></div>
+        <div class="overlay-amt" id="mCat" style="color:#cdd5ff;"></div>
+      </div>
+      <div class="overlay-body">
+        <p class="clue" id="mClue"></p>
+        <div class="answer" id="mAnsWrap">
+          <div class="a-label">Correct response</div>
+          <div class="a-text" id="mAns"></div>
+        </div>
+      </div>
+      <div class="overlay-actions">
+        <button class="btn btn-reveal" id="mReveal" type="button">Reveal answer</button>
+        <button class="btn btn-done" id="mDone" type="button" style="display:none;">Done — back to board</button>
+        <button class="btn btn-keep" id="mKeep" type="button">Put it back — don’t mark played</button>
+      </div>
+    </div>
+
+    <script>
+      // Exact board content carried over from the original Bitcoin Jeopardy file — do not edit wording.
+      const DATA = [
+       {cat:"Genesis", clues:[
+        [2000,"Published on October 31, 2008, this nine-page document introduced Bitcoin to the world.","What is the Bitcoin whitepaper — “Bitcoin: A Peer-to-Peer Electronic Cash System”?"],
+        [4000,"The newspaper headline embedded forever in the genesis block, mined January 3, 2009, referenced bailouts by this British finance chief.","What is “Chancellor on brink of second bailout for banks” (from The Times)?"],
+        [6000,"This cryptographer received the first-ever Bitcoin transaction — 10 BTC from Satoshi in January 2009 — and later became a leading Satoshi candidate himself.","Who is Hal Finney?"],
+        [8000,"The whitepaper was first announced on this cryptography mailing list, hosted at metzdowd.com.","What is the Cryptography Mailing List?"],
+        [10000,"Researcher Sergio Demian Lerner identified this pattern in the earliest blocks, attributing roughly 1.1 million BTC to a single miner — almost certainly Satoshi.","What is the Patoshi pattern?"]]},
+       {cat:"Numbers", clues:[
+        [2000,"The hard cap on Bitcoin's total supply, written into the protocol.","What is 21 million?"],
+        [4000,"The smallest unit of Bitcoin: one hundred-millionth of a coin.","What is a satoshi?"],
+        [6000,"The block reward cuts in half every this many blocks — roughly every four years.","What is 210,000 blocks?"],
+        [8000,"After the April 2024 halving, this is the current block subsidy paid to miners, in BTC.","What is 3.125 BTC?"],
+        [10000,"Around this year, the very last bitcoin is expected to be mined.","What is 2140?"]]},
+       {cat:"Protocol", clues:[
+        [2000,"The hash function at the heart of Bitcoin mining, run twice on every block header.","What is SHA-256?"],
+        [4000,"Mining difficulty readjusts every this many blocks to hold block times near ten minutes.","What is 2,016 blocks?"],
+        [6000,"Activated in August 2017, this upgrade moved signature data into a separate structure, effectively expanding block capacity.","What is SegWit (Segregated Witness)?"],
+        [8000,"Activated in November 2021, this upgrade brought Schnorr signatures and smarter, more private smart contracts.","What is Taproot?"],
+        [10000,"Proposed by Joseph Poon and Thaddeus Dryja, this layer-2 network of payment channels enables near-instant, near-free Bitcoin payments.","What is the Lightning Network?"]]},
+       {cat:"History & Headlines", clues:[
+        [2000,"On May 22, 2010, this Florida programmer made the first real-world Bitcoin purchase: two pizzas for 10,000 BTC.","Who is Laszlo Hanyecz?"],
+        [4000,"Once handling most of the world's Bitcoin trading, this Tokyo exchange collapsed in 2014 after losing some 850,000 BTC.","What is Mt. Gox?"],
+        [6000,"On this date in January 2024, the SEC approved the first U.S. spot Bitcoin ETFs.","What is January 10, 2024?"],
+        [8000,"In September 2021, this Central American nation became the first country to make Bitcoin legal tender.","What is El Salvador?"],
+        [10000,"In August 2010, this bug briefly created 184 billion BTC out of thin air before a soft fork erased it within hours.","What is the value overflow incident?"]]},
+       {cat:"People & Companies", clues:[
+        [2000,"This CEO turned MicroStrategy — now simply “Strategy” — into the largest corporate holder of Bitcoin on earth.","Who is Michael Saylor?"],
+        [4000,"The ticker symbol of BlackRock's spot Bitcoin ETF, the largest of the 2024 class.","What is IBIT?"],
+        [6000,"In 2024, a U.K. court ruled in this case that Craig Wright is not Satoshi Nakamoto — closing years of “Faketoshi” litigation.","What is COPA v. Wright?"],
+        [8000,"HBO's 2024 documentary “Money Electric” pointed to this longtime Bitcoin developer as Satoshi. He denied it.","Who is Peter Todd?"],
+        [10000,"This economist authored “The Bitcoin Standard,” the 2018 book that made the hard-money case for Bitcoin to a mainstream audience.","Who is Saifedean Ammous?"]]},
+       {cat:"Culture & Memes", clues:[
+        [2000,"Born as a typo in a defiant 2013 forum post — “I AM HODLING” — this four-letter word became Bitcoin's rallying cry.","What is HODL?"],
+        [4000,"Complete the credo: “Not your keys, not your…”","What is “…not your coins”?"],
+        [6000,"Bitcoin's October 2025 all-time high landed at roughly this dollar figure — the number that launched a certain $1M bet.","What is about $126,000?"],
+        [8000,"Celebrated every May 22 with two slices and a toast to Laszlo, this is Bitcoin's tastiest holiday.","What is Bitcoin Pizza Day?"],
+        [10000,"In profile photos across Bitcoin X, glowing laser eyes signaled belief in this round-number price target.","What is $100,000?"]]}
+      ];
+      const FINAL = {amt:"FINAL JEOPARDY — FIRSTS", clue:"In October 2009, the New Liberty Standard published the first-ever BTC exchange rate, valuing one U.S. dollar at this many bitcoin — priced from the cost of the electricity used to mine them.", ans:"What is 1,309 BTC?"};
+
+      const board = document.getElementById('board');
+      const overlay = document.getElementById('overlay');
+      const mAmt = document.getElementById('mAmt');
+      const mCat = document.getElementById('mCat');
+      const mClue = document.getElementById('mClue');
+      const mAns = document.getElementById('mAns');
+      const mAnsWrap = document.getElementById('mAnsWrap');
+      const mReveal = document.getElementById('mReveal');
+      const mDone = document.getElementById('mDone');
+      const mKeep = document.getElementById('mKeep');
+      const finalBtn = document.getElementById('finalBtn');
+      const resetBtn = document.getElementById('resetBtn');
+      const countEl = document.getElementById('count');
+      const statusLabel = document.getElementById('statusLabel');
+
+      let currentTile = null;
+      let played = 0;
+      const tiles = [];
+
+      DATA.forEach(function (c) {
+        const d = document.createElement('div');
+        d.className = 'cat';
+        d.textContent = c.cat;
+        board.appendChild(d);
+      });
+      for (let r = 0; r < 5; r++) {
+        DATA.forEach(function (c) {
+          const entry = c.clues[r];
+          const amt = entry[0], clue = entry[1], ans = entry[2];
+          const t = document.createElement('button');
+          t.type = 'button';
+          t.className = 'tile';
+          const label = amt.toLocaleString('en-US') + ' sats';
+          t.innerHTML = '<span class="n">' + amt.toLocaleString('en-US') + '</span><span class="u">sats</span>';
+          t.setAttribute('aria-label', c.cat + ' for ' + label);
+          t.addEventListener('click', function () {
+            if (t.classList.contains('used')) return;
+            currentTile = t;
+            openCard(label, c.cat, clue, ans);
+          });
+          board.appendChild(t);
+          tiles.push(t);
+        });
+      }
+
+      function updateStatus() {
+        countEl.textContent = played + ' / 30';
+        if (played === 30) {
+          statusLabel.innerHTML = 'board clear — <strong>time for Final Jeopardy</strong>';
+          if (!finalBtn.disabled) finalBtn.classList.add('pulse');
+        } else if (played === 0) {
+          statusLabel.innerHTML = 'clues played — <strong>tap a square to start</strong>';
+          finalBtn.classList.remove('pulse');
+        } else {
+          statusLabel.innerHTML = 'clues played — <strong>' + (30 - played) + ' left</strong>';
+          finalBtn.classList.remove('pulse');
+        }
+      }
+
+      function openCard(amtLabel, catLabel, clue, ans) {
+        mAmt.textContent = amtLabel;
+        mCat.textContent = catLabel;
+        mClue.textContent = clue;
+        mAns.textContent = ans;
+        mAnsWrap.classList.remove('show');
+        mReveal.style.display = '';
+        mDone.style.display = 'none';
+        mKeep.style.display = '';
+        overlay.classList.add('open');
+        document.body.style.overflow = 'hidden';
+        mReveal.focus();
+      }
+      function closeCard(markPlayed) {
+        overlay.classList.remove('open');
+        document.body.style.overflow = '';
+        if (markPlayed && currentTile && !currentTile.classList.contains('used')) {
+          currentTile.classList.add('used');
+          currentTile.setAttribute('aria-label', currentTile.getAttribute('aria-label') + ' — played');
+          played++;
+          updateStatus();
+        }
+        if (currentTile) currentTile.focus();
+        currentTile = null;
+      }
+
+      mReveal.addEventListener('click', function () {
+        mAnsWrap.classList.add('show');
+        mReveal.style.display = 'none';
+        mDone.style.display = '';
+        mDone.focus();
+      });
+      mDone.addEventListener('click', function () { closeCard(true); });
+      mKeep.addEventListener('click', function () { closeCard(false); });
+      document.addEventListener('keydown', function (e) {
+        if (e.key === 'Escape' && overlay.classList.contains('open')) closeCard(false);
+      });
+
+      finalBtn.addEventListener('click', function () {
+        currentTile = null;
+        openCard('Final Jeopardy', 'Firsts', FINAL.clue, FINAL.ans);
+        mKeep.style.display = 'none';
+        finalBtn.disabled = true;
+        finalBtn.classList.remove('pulse');
+        // restore the Keep button next time a normal tile opens
+        mDone.addEventListener('click', function h() { mKeep.style.display = ''; mDone.removeEventListener('click', h); });
+        mKeep.addEventListener('click', function h2() { mKeep.style.display = ''; mKeep.removeEventListener('click', h2); });
+      });
+
+      // Reset: two-tap confirm so a live host can't wipe the board by accident.
+      let resetArmed = false;
+      let resetTimer = null;
+      resetBtn.addEventListener('click', function () {
+        if (!resetArmed) {
+          resetArmed = true;
+          resetBtn.classList.add('confirm');
+          resetBtn.textContent = 'Tap again to reset';
+          resetTimer = setTimeout(function () {
+            resetArmed = false;
+            resetBtn.classList.remove('confirm');
+            resetBtn.textContent = '↺ Reset board';
+          }, 3200);
+          return;
+        }
+        clearTimeout(resetTimer);
+        resetArmed = false;
+        resetBtn.classList.remove('confirm');
+        resetBtn.textContent = '↺ Reset board';
+        tiles.forEach(function (t) {
+          t.classList.remove('used');
+          t.setAttribute('aria-label', t.getAttribute('aria-label').replace(' — played', ''));
+        });
+        played = 0;
+        finalBtn.disabled = false;
+        if (overlay.classList.contains('open')) closeCard(false);
+        updateStatus();
+      });
+
+      updateStatus();
+    </script>
+  </body>
+</html>
